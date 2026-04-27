@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>INDUSTRIAL SCADA</title>
+
+<style>
+body {
+    background: #0b0f14;
+    color: #00ff99;
+    font-family: monospace;
+}
+
+.header {
+    text-align:center;
+    padding:10px;
+    background:#111827;
+}
+
+.container {
+    display:flex;
+    justify-content:space-around;
+    margin-top:20px;
+}
+
+.panel {
+    border:2px solid #00ff99;
+    padding:20px;
+    width:40%;
+    background:#0f172a;
+}
+
+.ON { color:lime; }
+.OFF { color:red; }
+.TRIP { color:red; animation:blink 1s infinite; }
+
+@keyframes blink { 50% { opacity:0; } }
+
+button {
+    padding:8px;
+    margin:5px;
+    background:#1f2937;
+    color:#00ff99;
+    border:1px solid #00ff99;
+}
+
+.log {
+    height:150px;
+    overflow:auto;
+    border:1px solid #00ff99;
+    padding:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+INDUSTRIAL SCADA HMI
+</div>
+
+<div class="container">
+
+<!-- LEFT PANEL -->
+<div class="panel">
+<h3>PROCESS</h3>
+
+Motor: <span id="motor">OFF</span><br>
+Overload: <span id="overload">OK</span><br>
+Timer: <span id="timer">0</span>s
+
+<br><br>
+
+<button onclick="cmd('/plc/start/')">START</button>
+<button onclick="cmd('/plc/stop/')">STOP</button>
+<button onclick="cmd('/plc/overload/')">OVERLOAD</button>
+<button onclick="cmd('/plc/reset/')">RESET</button>
+
+<!-- MOTOR LAMP -->
+<h3>MOTOR LAMP</h3>
+<div id="lamp" style="width:60px;height:60px;border-radius:50%;background:red;margin:auto;"></div>
+<p id="mtext">STOPPED</p>
+
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="panel">
+<h3>EVENT LOG</h3>
+<div class="log" id="log"></div>
+
+<h3>LADDER DIAGRAM</h3>
+<pre id="ladder"></pre>
+
+</div>
+
+</div>
+
+<script>
+function cmd(url){
+    fetch(url);
+}
+
+function update(){
+    fetch('/plc/status/')
+    .then(r => r.json())
+    .then(d => {
+
+        // STATUS
+        document.getElementById("motor").innerHTML =
+            d.motor ? "<span class='ON'>ON</span>" : "<span class='OFF'>OFF</span>";
+
+        document.getElementById("overload").innerHTML =
+            d.overload ? "<span class='TRIP'>TRIPPED</span>" : "OK";
+
+        document.getElementById("timer").innerText =
+            d.timer.toFixed(2);
+
+        // MOTOR LAMP
+        let lamp = document.getElementById("lamp");
+        let txt = document.getElementById("mtext");
+
+        if(d.motor){
+            lamp.style.background = "lime";
+            txt.innerText = "RUNNING";
+        } else {
+            lamp.style.background = "red";
+            txt.innerText = "STOPPED";
+        }
+
+        // LOG
+        let log = "";
+        d.events.forEach(e => log += "• " + e + "\n");
+        document.getElementById("log").innerText = log;
+
+        // LADDER
+        document.getElementById("ladder").innerText =
+`RUNG 1:
+
+[START] ----+----[SEAL]----( MOTOR:${d.motor ? "ON" : "OFF"} )
+            |
+         [STOP NC]
+
+TIMER: ${d.timer.toFixed(1)} / 3s
+OVERLOAD: ${d.overload ? "TRIP" : "OK"}`;
+    });
+}
+
+setInterval(update, 500);
+</script>
+
+</body>
+</html>
