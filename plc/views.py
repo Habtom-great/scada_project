@@ -1,53 +1,96 @@
-from django.shortcuts import render
 
 # Create your views here.
 import time
+
 from django.http import JsonResponse
+from django.shortcuts import render
 
 # ================= PLC MEMORY =================
 PLC = {
+    # COMMANDS
     "start": False,
     "stop": True,
-    "seal": False,          # latch bit (M0.0 equivalent)
-    "motor": False,
+
+    # MOTORS
+    "M1": False,
+    "M2": False,
+    "M3": False,
+
+    # INTERNAL
+    "seal": False,
+
+    # TIMERS
+    "t1_start": None,
+    "t2_start": None,
+    "t3_start": None,
+    "t1": 0.0,
+    "t2": 0.0,
+    "t3": 0.0,
+    "delay": 3.0,  # seconds
+
+    # SAFETY
     "overload": False,
-    "ton_start_time": None,
-    "timer": 0.0,
-    "ton_delay": 3.0,
+
+    # LOG
     "events": []
 }
 
-# ================= LOG FUNCTION =================
+# ================= LOG =================
 def log(msg):
-    PLC["events"].append(msg)
-    PLC["events"] = PLC["events"][-10:]
+    PLC["events"].append(f"{time.strftime('%H:%M:%S')} - {msg}")
+    PLC["events"] = PLC["events"][-25:]
 
-# ================= PLC SCAN (REAL LOGIC) =================
+# ================= PLC SCAN =================
 def scan():
-    # ---------------- SEAL-IN CIRCUIT ----------------
-    if PLC["start"] and not PLC["stop"] and not PLC["overload"]:
-        PLC["seal"] = True
-
+    # --- SAFETY ---
     if PLC["stop"] or PLC["overload"]:
         PLC["seal"] = False
-        PLC["motor"] = False
-        PLC["ton_start_time"] = None
-        PLC["timer"] = 0
+        PLC["M1"] = PLC["M2"] = PLC["M3"] = False
+        PLC["t1_start"] = PLC["t2_start"] = PLC["t3_start"] = None
+        PLC["t1"] = PLC["t2"] = PLC["t3"] = 0.0
+        return
 
-    # ---------------- TON TIMER ----------------
-    if PLC["seal"]:
-        if PLC["ton_start_time"] is None:
-            PLC["ton_start_time"] = time.time()
+    # --- SEAL-IN ---
+    if PLC["start"]:
+        PLC["seal"] = True
 
-        PLC["timer"] = time.time() - PLC["ton_start_time"]
+    if not PLC["seal"]:
+        return
 
-        if PLC["timer"] >= PLC["ton_delay"]:
-            PLC["motor"] = True
-            log("MOTOR RUN")
+    now = time.time()
 
-    else:
-        PLC["ton_start_time"] = None
-        PLC["timer"] = 0
+    # ===== MOTOR 1 =====
+    if PLC["t1_start"] is None:
+        PLC["t1_start"] = now
+    PLC["t1"] = now - PLC["t1_start"]
+
+    if PLC["t1"] >= PLC["delay"]:
+        if not PLC["M1"]:
+            log("M1 STARTED")
+        PLC["M1"] = True
+
+    # ===== MOTOR 2 =====
+    if PLC["M1"]:
+        if PLC["t2_start"] is None:
+            PLC["t2_start"] = now
+        PLC["t2"] = now - PLC["t2_start"]
+
+        if PLC["t2"] >= PLC["delay"]:
+            if not PLC["M2"]:
+                log("M2 STARTED")
+            PLC["M2"] = True
+
+    # ===== MOTOR 3 =====
+    if PLC["M2"]:
+        if PLC["t3_start"] is None:
+            PLC["t3_start"] = now
+        PLC["t3"] = now - PLC["t3_start"]
+
+        if PLC["t3"] >= PLC["delay"]:
+            if not PLC["M3"]:
+                log("M3 STARTED")
+            PLC["M3"] = True
+
 
 # ================= API =================
 def status(request):
@@ -68,7 +111,7 @@ def stop(request):
 
 def overload(request):
     PLC["overload"] = True
-    log("OVERLOAD TRIP")
+    log("⚠ OVERLOAD TRIPPED")
     return JsonResponse({"ok": True})
 
 def reset(request):
@@ -76,12 +119,21 @@ def reset(request):
         "start": False,
         "stop": True,
         "seal": False,
-        "motor": False,
+        "M1": False,
+        "M2": False,
+        "M3": False,
         "overload": False,
-        "ton_start_time": None,
-        "timer": 0
+        "t1_start": None,
+        "t2_start": None,
+        "t3_start": None,
+        "t1": 0.0,
+        "t2": 0.0,
+        "t3": 0.0
+        
     })
+    
     log("SYSTEM RESET")
     return JsonResponse({"ok": True})
+
 def home(request):
     return render(request, "index.html")

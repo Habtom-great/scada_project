@@ -20,7 +20,7 @@ from django.urls import path, include
 from plc.views import home
 
 urlpatterns = [
-    path('', home),              # 👈 FIX HOME PAGE
+    path('', home),
     path('admin/', admin.site.urls),
     path('plc/', include('plc.urls')),
 ]
