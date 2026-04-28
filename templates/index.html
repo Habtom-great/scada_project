@@ -1,709 +1,262 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SCADA V2 | Factory Control System | Full Ladder + Classic Schematics</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<title>SCADA V2 Factory System</title>
 
-        body {
-            margin: 0;
-            background: #05070b;
-            color: #00ff99;
-            font-family: 'Segoe UI', 'Courier New', monospace;
-            font-weight: 500;
-        }
+<style>
+body {
+    margin:0;
+    background:#05070b;
+    color:#00ff99;
+    font-family:"Segoe UI", monospace;
+}
 
-        /* HEADER */
-        .header {
-            text-align: center;
-            padding: 18px 10px;
-            background: #0f172a;
-            font-size: 1.6rem;
-            letter-spacing: 3px;
-            font-weight: bold;
-            border-bottom: 3px solid #00ff99;
-            box-shadow: 0 0 12px rgba(0,255,153,0.2);
-            text-shadow: 0 0 4px #00ff99;
-        }
+/* HEADER */
+.header {
+    text-align:center;
+    padding:15px;
+    background:#0f172a;
+    font-size:20px;
+    font-weight:bold;
+    letter-spacing:2px;
+    border-bottom:2px solid #00ff99;
+}
 
-        /* 2-COLUMN FLEX GRID */
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            padding: 24px 28px;
-        }
+/* GRID */
+.container {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+    padding:20px;
+}
 
-        /* PANELS INDUSTRIAL */
-        .panel {
-            background: #0b1220;
-            border: 1px solid #00ff99;
-            border-radius: 16px;
-            padding: 18px 20px;
-            box-shadow: 0 8px 20px rgba(0,255,153,0.1);
-            backdrop-filter: blur(1px);
-        }
+/* PANEL */
+.panel {
+    background:#0b1220;
+    border:1px solid #00ff99;
+    border-radius:10px;
+    padding:15px;
+    box-shadow:0 0 10px #00ff9933;
+}
 
-        .panel h3 {
-            margin-top: 0;
-            margin-bottom: 16px;
-            border-left: 6px solid #00ff99;
-            padding-left: 12px;
-            font-weight: 600;
-        }
+/* STATUS */
+.ON { color:#00ff00; font-weight:bold; }
+.OFF { color:#ff3b3b; font-weight:bold; }
 
-        /* status text */
-        .ON { color: #00ffaa; font-weight: bold; text-shadow: 0 0 3px #00ff99; }
-        .OFF { color: #ff5e5e; font-weight: bold; }
+.TRIP {
+    color:red;
+    animation:blink 1s infinite;
+}
 
-        .TRIP {
-            color: #ff3300;
-            animation: blink 0.8s infinite;
-            font-weight: bold;
-        }
+@keyframes blink {
+    50% { opacity:0.2; }
+}
 
-        @keyframes blink {
-            0% { opacity: 1; text-shadow: 0 0 2px red; }
-            50% { opacity: 0.45; text-shadow: none; }
-            100% { opacity: 1; }
-        }
+/* BUTTON */
+button {
+    margin:5px;
+    padding:10px 15px;
+    background:#111827;
+    color:#00ff99;
+    border:1px solid #00ff99;
+    border-radius:6px;
+    cursor:pointer;
+}
 
-        /* LAMPS */
-        .lamp {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-left: 12px;
-            vertical-align: middle;
-            box-shadow: 0 0 10px currentColor;
-            transition: 0.1s;
-        }
+button:hover {
+    background:#00ff99;
+    color:black;
+}
 
-        /* BUTTONS */
-        button {
-            margin: 6px 8px 6px 0;
-            padding: 9px 22px;
-            background: #111827;
-            color: #00ff99;
-            border: 1.5px solid #00ff99;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: bold;
-            font-family: monospace;
-            font-size: 0.9rem;
-            transition: 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-        }
+/* LAMP */
+.lamp {
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    display:inline-block;
+    margin-left:8px;
+}
 
-        button:hover {
-            background: #00ff99;
-            color: #000;
-            box-shadow: 0 0 12px #00ff99;
-            border-color: #ffffff;
-            transform: scale(1.01);
-        }
+/* LOG */
+.log {
+    height:160px;
+    overflow:auto;
+    background:black;
+    border:1px solid #00ff99;
+    padding:10px;
+    font-size:12px;
+}
 
-        button:active {
-            transform: scale(0.97);
-        }
+/* SCHEMATIC */
+.schematic {
+    grid-column: span 2;
+}
 
-        /* LOG */
-        .log {
-            height: 170px;
-            overflow-y: auto;
-            background: #03070f;
-            border: 1px solid #1f3a2f;
-            padding: 10px;
-            font-size: 12px;
-            font-family: 'Courier New', monospace;
-            border-radius: 10px;
-            white-space: pre-wrap;
-        }
+.node {
+    display:inline-block;
+    padding:8px 15px;
+    margin:5px;
+    border:1px solid #00ff99;
+    border-radius:6px;
+    background:#0b1220;
+}
 
-        /* SCHEMATIC nodes */
-        .schematic {
-            grid-column: span 2;
-        }
+.active {
+    background:#00ff99;
+    color:black;
+    font-weight:bold;
+}
 
-        .flow-schema {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            margin: 20px 0;
-            background: #07111e;
-            padding: 18px;
-            border-radius: 28px;
-        }
-
-        .node {
-            display: inline-flex;
-            padding: 10px 20px;
-            margin: 4px;
-            border: 1.5px solid #00ff99;
-            border-radius: 40px;
-            background: #0b1220;
-            font-weight: bold;
-            transition: all 0.2s;
-            min-width: 80px;
-            justify-content: center;
-        }
-
-        .arrow {
-            font-size: 26px;
-            font-weight: bold;
-            color: #00ff99;
-        }
-
-        .active {
-            background: #00ff99;
-            color: black;
-            font-weight: bold;
-            box-shadow: 0 0 15px #00ff99;
-            border-color: white;
-        }
-
-        /* electrical ladder view (new style) */
-        .electrical-ladder {
-            background: #03070f;
-            border-radius: 16px;
-            margin-top: 10px;
-            padding: 12px 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            border: 1px solid #2a4a3a;
-        }
-
-        .coil-active {
-            color: #ffcc33;
-            text-shadow: 0 0 5px gold;
-            font-weight: bold;
-        }
-
-        .timer-box span {
-            display: block;
-            margin: 8px 0;
-            background: #01010170;
-            padding: 4px 8px;
-            border-radius: 12px;
-        }
-        
-        /* OLD SCHEMATIC STYLES (preserved from original) */
-        .old-schematic {
-            margin-top: 20px;
-            border-top: 2px solid #00ff9944;
-            padding-top: 15px;
-        }
-        .old-schematic .node-old {
-            display: inline-block;
-            padding: 8px 15px;
-            margin: 5px;
-            border: 1px solid #00ff99;
-            border-radius: 6px;
-            background: #0b1220;
-        }
-        .old-schematic .active-old {
-            background: #00ff99;
-            color: black;
-            font-weight: bold;
-        }
-        .old-schematic .arrow-old {
-            font-size: 18px;
-            margin: 5px;
-        }
-        .hot-ladder-old {
-            font-family: monospace;
-            line-height: 2;
-            background: #03070f;
-            padding: 12px;
-            border-radius: 14px;
-            margin-top: 12px;
-        }
-    </style>
+.arrow {
+    font-size:18px;
+    margin:5px;
+}
+</style>
 </head>
+
 <body>
 
-<div class="header">⚡ INDUSTRIAL SCADA V2 - FACTORY CONTROL SYSTEM | PLC LADDER + CLASSIC DIAGRAMS ⚙️</div>
+<div class="header">INDUSTRIAL SCADA V2 - FACTORY CONTROL SYSTEM</div>
 
 <div class="container">
 
-    <!-- MOTORS + OVERLOAD Section -->
-    <div class="panel">
-        <h3>⚙ MOTORS STATUS & FEEDBACK</h3>
+<!-- ================= MOTORS ================= -->
+<div class="panel">
+<h3>⚙ MOTORS STATUS</h3>
 
-        <div style="font-size:1.2rem; margin-bottom: 12px;">
-            🧲 M1: <span id="m1"></span><span id="l1" class="lamp"></span><br>
-            🔧 M2: <span id="m2"></span><span id="l2" class="lamp"></span><br>
-            🔩 M3: <span id="m3"></span><span id="l3" class="lamp"></span><br>
-        </div>
+M1: <span id="m1"></span><span id="l1" class="lamp"></span><br>
+M2: <span id="m2"></span><span id="l2" class="lamp"></span><br>
+M3: <span id="m3"></span><span id="l3" class="lamp"></span><br>
 
-        <div style="margin: 10px 0 15px 0; background:#0f1422; padding: 8px; border-radius: 20px;">
-            ⚠️ OVERLOAD RELAY: <span id="overload"></span>
-        </div>
+<br>
+Overload: <span id="overload"></span>
 
-        <h3>🎛️ OPERATOR CONTROLS</h3>
-        <button id="btnStart">🟢 START SEQUENCE</button>
-        <button id="btnStop">🔴 EMERGENCY STOP</button>
-        <button id="btnOverload">⚠️ SIMULATE OVERLOAD</button>
-        <button id="btnReset">🔄 RESET TRIP</button>
-        <div style="margin-top: 8px; font-size:12px; opacity:0.7;">(Start = Latch RUN, sequential timers T1=2s, T2=3s)</div>
-    </div>
+<h3>🎛 CONTROLS</h3>
+<button onclick="cmd('/plc/start/')">START</button>
+<button onclick="cmd('/plc/stop/')">STOP</button>
+<button onclick="cmd('/plc/overload/')">OVERLOAD</button>
+<button onclick="cmd('/plc/reset/')">RESET</button>
+</div>
 
-    <!-- TIMERS / LADDER LOGIC + EVENT LOG -->
-    <div class="panel timer-box">
-        <h3>⏱️ TIMERS (TON)</h3>
-        <span>⏲️ T1 (M1→M2): <b id="t1">0.0</b> s / 2.0s</span>
-        <span>⏲️ T2 (M2→M3): <b id="t2">0.0</b> s / 3.0s</span>
-        <span>⏲️ T3 (Aux): <b id="t3">0.0</b> s (unused)</span>
+<!-- ================= TIMERS + LOG ================= -->
+<div class="panel">
+<h3>⏱ TIMERS</h3>
+T1: <b id="t1"></b>s<br>
+T2: <b id="t2"></b>s<br>
+T3: <b id="t3"></b>s<br>
 
-        <h3>📜 LADDER LOGIC (RUNG)</h3>
-        <pre id="ladder" style="background:#000000aa; padding: 8px; border-radius:12px; overflow-x:auto;">🚀 Ladder engine active</pre>
+<h3>📜 LADDER LOGIC</h3>
+<pre id="ladder"></pre>
 
-        <h3>📡 EVENT LOG (SCADA)</h3>
-        <div class="log" id="log">-- system ready --\n> PLC online</div>
-    </div>
+<h3>📡 EVENT LOG</h3>
+<div class="log" id="log"></div>
+</div>
 
-    <!-- ========= MODERN PROCESS SCHEMATIC + OLD STYLE SCHEMATICS (PRESERVED) ========= -->
-    <div class="panel schematic">
-        <h3>🏭 PROCESS SEQUENCE DIAGRAM (modern sequential start)</h3>
-        <div class="flow-schema">
-            <div class="node" id="startNode">START CMD</div>
-            <div class="arrow">➡</div>
-            <div class="node" id="sm1">MOTOR M1</div>
-            <div class="arrow">⏱️ TON 2.0s</div>
-            <div class="node" id="sm2">MOTOR M2</div>
-            <div class="arrow">⏱️ TON 3.0s</div>
-            <div class="node" id="sm3">MOTOR M3</div>
-            <div class="arrow">🏁</div>
-            <div class="node">PRODUCTION OK</div>
-        </div>
+</div>
 
-        <h3>⚡ NEW ELECTRICAL LADDER DIAGRAM (RELAY LOGIC)</h3>
-        <div class="electrical-ladder" id="ladderSchema">
-            <!-- dynamic ladder content -->
-        </div>
-        
-        <!-- ==================== ORIGINAL SCHEMATIC (PRESERVED) ==================== -->
-        <div class="old-schematic">
-            <h3>📐 LEGACY SCHEMATIC DIAGRAM (original factory drawing)</h3>
-            <div style="text-align:center; background:#07111e; border-radius: 24px; padding: 15px;">
-                <div class="node-old" id="legacyStartNode">START</div>
-                <span class="arrow-old">⬇</span>
-                <div class="node-old" id="legacyM1">M1</div>
-                <span class="arrow-old">⬇ TON (T1)</span>
-                <div class="node-old" id="legacyM2">M2</div>
-                <span class="arrow-old">⬇ TON (T2)</span>
-                <div class="node-old" id="legacyM3">M3</div>
-                <span class="arrow-old">⬇</span>
-                <div class="node-old">PROCESS OUTPUT</div>
-            </div>
+<!-- ================= MODERN SCHEMATIC ================= -->
+<div class="panel schematic">
+<h3>🏭 PROCESS SCHEMATIC (MODERN FLOW)</h3>
 
-            <h3 style="margin-top: 20px;">🔌 ORIGINAL ELECTRICAL SCHEMATIC (HOT LINE / LADDER VIEW)</h3>
-            <div class="hot-ladder-old" id="originalHotLadder">
-                <!-- dynamic original ladder replica based on state -->
-            </div>
-        </div>
-    </div>
+<div style="text-align:center">
+
+<div id="sm1" class="node">M1</div>
+<div class="arrow">⬇ TON (T1)</div>
+
+<div id="sm2" class="node">M2</div>
+<div class="arrow">⬇ TON (T2)</div>
+
+<div id="sm3" class="node">M3</div>
+<div class="arrow">⬇</div>
+
+<div class="node">OUTPUT</div>
+
+</div>
+</div>
+
+<!-- ================= TRADITIONAL SCHEMATIC ================= -->
+<div class="panel schematic">
+<h3>⚡ TRADITIONAL ELECTRICAL LADDER</h3>
+
+<pre style="line-height:2; font-size:14px">
+
+L1 (HOT LINE)
+│
+├──[ START ]────────────( RUN )
+│
+├──[ RUN SEAL ]──────────┘
+│
+├──[ RUN ]────────────( M1 COIL )
+│
+├──[ TON T1 ]──────────( M2 COIL )
+│
+├──[ TON T2 ]──────────( M3 COIL )
+│
+N (NEUTRAL)
+
+</pre>
+
 </div>
 
 <script>
-    // ------------------------------
-    // FULL PLC ENGINE w/ timers, overload, seal logic
-    // ------------------------------
-    class IndustrialPLC {
-        constructor() {
-            this.M1 = false;
-            this.M2 = false;
-            this.M3 = false;
-            this.overloadTripped = false;
-            this.runLatch = false;
-            
-            this.t1_acc = 0.0;
-            this.t2_acc = 0.0;
-            this.t1_done = false;
-            this.t2_done = false;
-            
-            this.T1_PRE = 2.0;
-            this.T2_PRE = 3.0;
-            
-            this.events = ["⚡ PLC INIT | SYSTEM READY"];
-            this.lastM1 = false;
-            this.lastM2 = false;
-            this.lastM3 = false;
-            this._fullSeqFlag = false;
-        }
-        
-        addEvent(msg) {
-            const timestamp = new Date().toLocaleTimeString();
-            const logMsg = `[${timestamp}] ${msg}`;
-            this.events.unshift(logMsg);
-            if (this.events.length > 18) this.events.pop();
-        }
-        
-        startSequence() {
-            if (this.overloadTripped) {
-                this.addEvent("❌ ACTION REJECTED: Overload tripped! Press RESET first.");
-                return false;
-            }
-            if (!this.runLatch) {
-                this.runLatch = true;
-                this.addEvent("🚀 START command received | Run latch = TRUE");
-                this.evaluateLadder();
-                return true;
-            } else {
-                this.addEvent("⚠️ System already running.");
-                return false;
-            }
-        }
-        
-        stopSequence() {
-            if (this.runLatch === true || this.M1 || this.M2 || this.M3) {
-                this.runLatch = false;
-                this.t1_acc = 0;
-                this.t2_acc = 0;
-                this.t1_done = false;
-                this.t2_done = false;
-                this.M1 = false;
-                this.M2 = false;
-                this.M3 = false;
-                this.addEvent("🛑 EMERGENCY STOP! All motors halted. Latch released.");
-                this.evaluateLadder();
-            } else {
-                this.addEvent("⏸️ System already stopped.");
-            }
-        }
-        
-        simulateOverload() {
-            if (!this.overloadTripped) {
-                this.overloadTripped = true;
-                this.runLatch = false;
-                this.M1 = false;
-                this.M2 = false;
-                this.M3 = false;
-                this.t1_acc = 0;
-                this.t2_acc = 0;
-                this.t1_done = false;
-                this.t2_done = false;
-                this.addEvent("⚠️⚠️ OVERLOAD TRIP! Thermal relay activated. All contactors drop out.");
-            } else {
-                this.addEvent("⚠️ Overload already tripped. Press RESET to clear.");
-            }
-        }
-        
-        resetOverload() {
-            if (this.overloadTripped) {
-                this.overloadTripped = false;
-                this.runLatch = false;
-                this.M1 = false;
-                this.M2 = false;
-                this.M3 = false;
-                this.t1_acc = 0;
-                this.t2_acc = 0;
-                this.t1_done = false;
-                this.t2_done = false;
-                this.addEvent("✅ Overload relay RESET. System safe. Press START to begin sequence.");
-            } else {
-                this.addEvent("🔄 Reset no effect: overload not tripped.");
-            }
-        }
-        
-        evaluateLadder() {
-            if (this.overloadTripped) {
-                this.M1 = false;
-                this.M2 = false;
-                this.M3 = false;
-                this.t1_acc = 0;
-                this.t2_acc = 0;
-                this.t1_done = false;
-                this.t2_done = false;
-                return;
-            }
-            
-            const newM1 = this.runLatch;
-            
-            if (newM1 && !this.overloadTripped) {
-                if (this.t1_acc < this.T1_PRE) {
-                    this.t1_acc += 0.1;
-                    if (this.t1_acc >= this.T1_PRE) {
-                        this.t1_acc = this.T1_PRE;
-                        this.t1_done = true;
-                        this.addEvent("⏱️ T1 DONE | M2 enable condition satisfied");
-                    }
-                } else {
-                    this.t1_done = true;
-                }
-            } else {
-                if (this.t1_acc > 0) {
-                    this.t1_acc = 0;
-                    this.t1_done = false;
-                }
-            }
-            
-            const newM2 = newM1 && this.t1_done && !this.overloadTripped;
-            
-            if (newM2 && !this.overloadTripped) {
-                if (this.t2_acc < this.T2_PRE) {
-                    this.t2_acc += 0.1;
-                    if (this.t2_acc >= this.T2_PRE) {
-                        this.t2_acc = this.T2_PRE;
-                        this.t2_done = true;
-                        this.addEvent("⏱️ T2 DONE | M3 authorized");
-                    }
-                } else {
-                    this.t2_done = true;
-                }
-            } else {
-                if (this.t2_acc > 0) {
-                    this.t2_acc = 0;
-                    this.t2_done = false;
-                }
-            }
-            
-            const newM3 = newM2 && this.t2_done && !this.overloadTripped;
-            
-            if (newM1 !== this.M1) {
-                this.addEvent(`🔌 M1 ${newM1 ? "ENERGIZED" : "DE-ENERGIZED"}`);
-            }
-            if (newM2 !== this.M2) {
-                this.addEvent(`⚙️ M2 ${newM2 ? "ENERGIZED" : "DE-ENERGIZED"}`);
-            }
-            if (newM3 !== this.M3) {
-                this.addEvent(`🔩 M3 ${newM3 ? "ENERGIZED" : "DE-ENERGIZED"}`);
-            }
-            
-            this.M1 = newM1;
-            this.M2 = newM2;
-            this.M3 = newM3;
-            
-            if (this.M1 && this.M2 && this.M3 && !this._fullSeqFlag) {
-                this.addEvent("🏭 FULL PRODUCTION SEQUENCE ACTIVE: All motors ONLINE");
-                this._fullSeqFlag = true;
-            } else if (!(this.M1 && this.M2 && this.M3)) {
-                this._fullSeqFlag = false;
-            }
-        }
-        
-        updatePLC() {
-            this.evaluateLadder();
-        }
-        
-        getSnapshot() {
-            return {
-                M1: this.M1,
-                M2: this.M2,
-                M3: this.M3,
-                overload: this.overloadTripped,
-                t1: this.t1_acc,
-                t2: this.t2_acc,
-                t3: 0,
-                events: this.events.slice(0, 16),
-                runLatch: this.runLatch,
-                t1_done: this.t1_done,
-                t2_done: this.t2_done
-            };
-        }
-    }
-    
-    // ----------------------------------------------
-    // GLOBAL PLC INSTANCE + UI BINDINGS
-    // ----------------------------------------------
-    const plc = new IndustrialPLC();
-    
-    function refreshUI() {
-        const state = plc.getSnapshot();
-        
-        // Motor text & lamps
-        const m1Span = document.getElementById("m1");
-        const m2Span = document.getElementById("m2");
-        const m3Span = document.getElementById("m3");
-        m1Span.innerHTML = state.M1 ? "<span class='ON'>● ON</span>" : "<span class='OFF'>○ OFF</span>";
-        m2Span.innerHTML = state.M2 ? "<span class='ON'>● ON</span>" : "<span class='OFF'>○ OFF</span>";
-        m3Span.innerHTML = state.M3 ? "<span class='ON'>● ON</span>" : "<span class='OFF'>○ OFF</span>";
-        
-        const lamp1 = document.getElementById("l1");
-        const lamp2 = document.getElementById("l2");
-        const lamp3 = document.getElementById("l3");
-        lamp1.style.background = state.M1 ? "#2eff9e" : "#aa2e2e";
-        lamp1.style.boxShadow = state.M1 ? "0 0 12px #00ff99" : "none";
-        lamp2.style.background = state.M2 ? "#2eff9e" : "#aa2e2e";
-        lamp2.style.boxShadow = state.M2 ? "0 0 12px #00ff99" : "none";
-        lamp3.style.background = state.M3 ? "#2eff9e" : "#aa2e2e";
-        lamp3.style.boxShadow = state.M3 ? "0 0 12px #00ff99" : "none";
-        
-        const overloadSpan = document.getElementById("overload");
-        overloadSpan.innerHTML = state.overload ? "<span class='TRIP'>🚨 TRIPPED</span>" : "<span class='ON'>✓ OK</span>";
-        
-        document.getElementById("t1").innerText = state.t1.toFixed(1);
-        document.getElementById("t2").innerText = state.t2.toFixed(1);
-        document.getElementById("t3").innerText = "0.0";
-        
-        const ladderText = `[RUNG 001] | START |---| |---( RUN LATCH )---[SEAL] 
-[RUNG 002] | RUN LATCH |---------| |-------( M1 CONTACTOR )
-[RUNG 003] | M1 |---[TON T1 PRE=2.0s]---|DN|-----( M2 ENABLE )
-[RUNG 004] | M2 |---[TON T2 PRE=3.0s]---|DN|-----( M3 ENABLE )
->> STATUS: M1=${state.M1?"1":"0"}  M2=${state.M2?"1":"0"}  M3=${state.M3?"1":"0"}  T1_DN=${state.t1_done?"1":"0"}  T2_DN=${state.t2_done?"1":"0"}`;
-        document.getElementById("ladder").innerText = ladderText;
-        
-        const logDiv = document.getElementById("log");
-        let logHtml = "";
-        state.events.forEach(ev => { logHtml += "> " + ev + "\n"; });
-        logDiv.innerText = logHtml || "-- no events --";
-        
-        // modern schematic highlighting
-        const sm1 = document.getElementById("sm1");
-        const sm2 = document.getElementById("sm2");
-        const sm3 = document.getElementById("sm3");
-        if (state.M1) sm1.classList.add("active"); else sm1.classList.remove("active");
-        if (state.M2) sm2.classList.add("active"); else sm2.classList.remove("active");
-        if (state.M3) sm3.classList.add("active"); else sm3.classList.remove("active");
-        
-        const startNode = document.getElementById("startNode");
-        if (state.runLatch && !state.overload) startNode.classList.add("active");
-        else startNode.classList.remove("active");
-        
-        buildLadderVisual(state);
-        updateOriginalLegacySchematics(state);
-    }
-    
-    function buildLadderVisual(state) {
-        const container = document.getElementById("ladderSchema");
-        const overloadActive = state.overload;
-        const runLatchActive = state.runLatch && !overloadActive;
-        
-        container.innerHTML = `
-            <div style="font-family: monospace; font-size:13px; line-height:1.7;">
-                <div style="color:#8bc34a;">⚡ POWER RAIL LADDER (N.O. contacts & coils)</div>
-                <div>⚡ L1 ─────────────────────────────────┐</div>
-                <div>│      [ START ]   ┌──[ SEAL ]────────┐   │</div>
-                <div>├─────| |──────────┤                  │   │</div>
-                <div>│                   └──[ RUN LATCH ]───┼───┤ (RUN = ${runLatchActive ? "■ ACTIVE" : "□ OFF"})</div>
-                <div>│</div>
-                <div>├──────[ RUN LATCH ]──────────────────( M1 COIL ) ${state.M1 ? "▶ ENERGIZED" : "○ DEAD"} <span class="${state.M1 ? 'coil-active' : ''}">[M1]</span></div>
-                <div>│         │</div>
-                <div>├─────[ M1 ]─────[ TON T1: ${state.t1.toFixed(1)}/${plc.T1_PRE}s ]─────|DN|────┐</div>
-                <div>│                                                                          │</div>
-                <div>├──────────────────────────────────────────────────────( M2 COIL ) ${state.M2 ? "▶ ON" : "○ OFF"} <span class="${state.M2 ? 'coil-active' : ''}">[M2]</span></div>
-                <div>│         │</div>
-                <div>├─────[ M2 ]─────[ TON T2: ${state.t2.toFixed(1)}/${plc.T2_PRE}s ]─────|DN|────┐</div>
-                <div>│                                                                          │</div>
-                <div>├──────────────────────────────────────────────────────( M3 COIL ) ${state.M3 ? "▶ ON" : "○ OFF"} <span class="${state.M3 ? 'coil-active' : ''}">[M3]</span></div>
-                <div>│</div>
-                <div>└───────────────────────── (NEUTRAL RETURN) ────────────────────────── ⚡ N</div>
-                <div style="margin-top:8px; border-top:1px dashed #2c6e4f; padding-top:6px;">
-                🔸 OVERLOAD: ${overloadActive ? "TRIPPED (OPEN)" : "N.C. CLOSED"} &nbsp;&nbsp;|&nbsp;
-                🔹 LATCH STATUS: ${runLatchActive ? "SEALED RUN" : "IDLE"}
-                </div>
-            </div>
-        `;
-    }
-    
-    // ORIGINAL SCHEMATIC UPDATER (classic hot line + ladder view exactly as old style)
-    function updateOriginalLegacySchematics(state) {
-        // legacy node highlighting
-        const legStart = document.getElementById("legacyStartNode");
-        const legM1 = document.getElementById("legacyM1");
-        const legM2 = document.getElementById("legacyM2");
-        const legM3 = document.getElementById("legacyM3");
-        
-        if (state.runLatch && !state.overload) legStart.classList.add("active-old");
-        else legStart.classList.remove("active-old");
-        
-        if (state.M1) legM1.classList.add("active-old"); else legM1.classList.remove("active-old");
-        if (state.M2) legM2.classList.add("active-old"); else legM2.classList.remove("active-old");
-        if (state.M3) legM3.classList.add("active-old"); else legM3.classList.remove("active-old");
-        
-        // Original electrical schematic replication (hot line / ladder view from original spec)
-        const hotLadderDiv = document.getElementById("originalHotLadder");
-        const overloadSymbol = state.overload ? "⛔ TRIPPED (OPEN)" : "✔ N.C. CLOSED";
-        const m1State = state.M1 ? "● ENERGIZED" : "○ DE-ENERGIZED";
-        const m2State = state.M2 ? "● ENERGIZED" : "○ DE-ENERGIZED";
-        const m3State = state.M3 ? "● ENERGIZED" : "○ DE-ENERGIZED";
-        
-        hotLadderDiv.innerHTML = `
-            <div style="font-family: monospace; line-height: 2.2; font-size: 13px;">
-                <div>⚡ HOT LINE (L1 POWER)</div>
-                <div style="margin-left:20px;">│</div>
-                <div style="margin-left:20px;">
-                    ├── [ START CONTACT ] ${state.runLatch && !state.overload ? "▣ CLOSED" : "□ OPEN"}
-                </div>
-                <div style="margin-left:40px;">
-                    ├── [ SEAL-IN CONTACT ] ${state.runLatch && !state.overload ? "▣ SEALED" : "□ OPEN"}
-                </div>
-                <div style="margin-left:60px;" id="orig_c_m1">
-                    ├── ( M1 CONTACTOR COIL ) → ${m1State}
-                </div>
-                <div style="margin-left:60px;" id="orig_c_t1">
-                    ├── ( TON TIMER T1 ) → ${state.t1.toFixed(1)}s / ${plc.T1_PRE}s &nbsp; ${state.t1_done ? "✓ DONE" : "⏳"}
-                </div>
-                <div style="margin-left:60px;" id="orig_c_m2">
-                    ├── ( M2 CONTACTOR COIL ) → ${m2State}
-                </div>
-                <div style="margin-left:60px;" id="orig_c_t2">
-                    ├── ( TON TIMER T2 ) → ${state.t2.toFixed(1)}s / ${plc.T2_PRE}s &nbsp; ${state.t2_done ? "✓ DONE" : "⏳"}
-                </div>
-                <div style="margin-left:60px;" id="orig_c_m3">
-                    ├── ( M3 CONTACTOR COIL ) → ${m3State}
-                </div>
-                <div style="margin-left:20px;">│</div>
-                <div>⚡ NEUTRAL RETURN</div>
-                <div style="margin-top:10px; border-top:1px solid #2a6e4a;">🔧 OVERLOAD PROTECTION: ${overloadSymbol}</div>
-                <div>📌 ORIGINAL SEQUENCE: START → M1 (TON T1) → M2 (TON T2) → M3</div>
-            </div>
-        `;
-        
-        // also update background colors to match classic style (just visual)
-        const oldCoils = ["orig_c_m1", "orig_c_m2", "orig_c_m3"];
-        if (state.M1) document.getElementById("orig_c_m1")?.setAttribute("style", "margin-left:60px; background:#1f3a2a; border-radius:6px;");
-        else document.getElementById("orig_c_m1")?.setAttribute("style", "margin-left:60px;");
-        if (state.M2) document.getElementById("orig_c_m2")?.setAttribute("style", "margin-left:60px; background:#1f3a2a; border-radius:6px;");
-        else document.getElementById("orig_c_m2")?.setAttribute("style", "margin-left:60px;");
-        if (state.M3) document.getElementById("orig_c_m3")?.setAttribute("style", "margin-left:60px; background:#1f3a2a; border-radius:6px;");
-        else document.getElementById("orig_c_m3")?.setAttribute("style", "margin-left:60px;");
-    }
-    
-    // periodic PLC loop
-    let intervalId = null;
-    function startPLCLoop() {
-        if (intervalId) clearInterval(intervalId);
-        intervalId = setInterval(() => {
-            plc.updatePLC();
-            refreshUI();
-        }, 100);
-    }
-    
-    function bindControls() {
-        document.getElementById("btnStart").addEventListener("click", () => {
-            plc.startSequence();
-            refreshUI();
-        });
-        document.getElementById("btnStop").addEventListener("click", () => {
-            plc.stopSequence();
-            refreshUI();
-        });
-        document.getElementById("btnOverload").addEventListener("click", () => {
-            plc.simulateOverload();
-            refreshUI();
-        });
-        document.getElementById("btnReset").addEventListener("click", () => {
-            plc.resetOverload();
-            refreshUI();
-        });
-    }
-    
-    function init() {
-        bindControls();
-        startPLCLoop();
-        refreshUI();
-        plc.addEvent("🏭 SCADA V2 ONLINE | Legacy schematic & modern ladder integrated");
-    }
-    
-    init();
+
+function cmd(url){
+    fetch(url);
+}
+
+function lamp(id, state){
+    let el = document.getElementById(id);
+    if(!el) return;
+    el.style.background = state ? "#00ff00" : "#ff0000";
+}
+
+function update(){
+
+fetch('/plc/status/')
+.then(r => r.json())
+.then(d => {
+
+    // MOTORS
+    document.getElementById("m1").innerHTML = d.M1 ? "<span class='ON'>ON</span>" : "<span class='OFF'>OFF</span>";
+    document.getElementById("m2").innerHTML = d.M2 ? "<span class='ON'>ON</span>" : "<span class='OFF'>OFF</span>";
+    document.getElementById("m3").innerHTML = d.M3 ? "<span class='ON'>ON</span>" : "<span class='OFF'>OFF</span>";
+
+    lamp("l1", d.M1);
+    lamp("l2", d.M2);
+    lamp("l3", d.M3);
+
+    // TIMERS
+    document.getElementById("t1").innerText = d.t1.toFixed(1);
+    document.getElementById("t2").innerText = d.t2.toFixed(1);
+    document.getElementById("t3").innerText = d.t3.toFixed(1);
+
+    // OVERLOAD
+    document.getElementById("overload").innerHTML =
+        d.overload ? "<span class='TRIP'>TRIPPED</span>" : "OK";
+
+    // LADDER TEXT
+    document.getElementById("ladder").innerText =
+`START → SEAL → M1 (${d.M1 ? "ON" : "OFF"})
+M1 → TON → M2 (${d.M2 ? "ON" : "OFF"})
+M2 → TON → M3 (${d.M3 ? "ON" : "OFF"})`;
+
+    // EVENT LOG
+    let log = "";
+    d.events.forEach(e => log += e + "\n");
+    document.getElementById("log").innerText = log;
+
+    // SCHEMATIC HIGHLIGHT
+    document.getElementById("sm1").classList.toggle("active", d.M1);
+    document.getElementById("sm2").classList.toggle("active", d.M2);
+    document.getElementById("sm3").classList.toggle("active", d.M3);
+
+});
+
+}
+
+setInterval(update, 1000);
+
 </script>
+
 </body>
 </html>
